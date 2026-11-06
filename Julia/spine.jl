@@ -1,34 +1,18 @@
 using LinearAlgebra
 
-# 1. Isolated System Representation
+# 1. Un-Normalized Isolated System Representation
 struct SystemManifest
     id::String
     ontology_dimension::Int
     adjacency::Matrix{Float64}
-    semantics::Vector{Float64} # Strictly isolated independent probabilities
-end
-
-# A6-Compliant Isolated Scaler replacing global Softmax
-function apply_a6_isolated_scaling(raw_semantics::Vector{Float64})::Vector{Float64}
-    # Step 1: Map each element independently to (0, 1) via logistic sigmoid
-    # This prevents the value of one element from leaking into the denominator of another.
-    isolated_sigmoid = 1.0 ./ (1.0 .+ exp.(-raw_semantics))
-    
-    # Step 2: Scale by an immutable dimension constant rather than the vector sum.
-    # This guarantees that ∂y_i / ∂x_j = 0 for all i != j.
-    return isolated_sigmoid ./ length(raw_semantics)
-end
-
-function create_system(id::String, dim::Int, adj::Matrix{Float64}, raw_semantics::Vector{Float64})
-    normalized_semantics = apply_a6_isolated_scaling(raw_semantics)
-    return SystemManifest(id, dim, adj, normalized_semantics)
+    semantics::Vector{Float64} # Pure un-normalized vector weights in R^N
 end
 
 # 2. A6 Firewall Evaluator (Simulated 13 Constructive Fixes)
 function evaluate_a6_firewall(sys::SystemManifest)::Vector{Int}
     signature = ones(Int, 13)
     if abs(det(sys.adjacency)) < 1e-5
-        signature[7] = 0 # Vulnerability specifically trips fix #7
+        signature = 0 # Vulnerability specifically trips fix #7
     end
     return signature
 end
@@ -42,17 +26,19 @@ function compute_tri_spectral_deviation(sysA::SystemManifest, sysB::SystemManife
     return norm(specA - specB) + norm(specB - specC) + norm(specC - specA)
 end
 
-# 4. Tri-Semantics Cross-Entropy & Information Divergence Engine
-function kl_divergence(p::Vector{Float64}, q::Vector{Float64})::Float64
-    # Computes D_KL(P || Q) securely across the isolated manifold
-    return sum(p[i] * log(p[i] / q[i]) for i in eachindex(p))
+# 4. Geometric Cosine Tensor Divergence Engine
+function cosine_distance(v1::Vector{Float64}, v2::Vector{Float64})::Float64
+    # Computes 1 - cos(θ), mapping orthogonal vectors to 1.0 and identical vectors to 0.0
+    denom = norm(v1) * norm(v2)
+    if denom < 1e-12 return 1.0 end # Safeguard for zero vectors
+    return 1.0 - (dot(v1, v2) / denom)
 end
 
-function compute_tri_semantic_deviation(sysA::SystemManifest, sysB::SystemManifest, sysC::SystemManifest)::Float64
-    # Symmetric 3-way Kullback-Leibler Divergence Loop representing D_ρ^(3)
-    d_AB = kl_divergence(sysA.semantics, sysB.semantics) + kl_divergence(sysB.semantics, sysA.semantics)
-    d_BC = kl_divergence(sysB.semantics, sysC.semantics) + kl_divergence(sysC.semantics, sysB.semantics)
-    d_CA = kl_divergence(sysC.semantics, sysA.semantics) + kl_divergence(sysA.semantics, sysC.semantics)
+function compute_tri_geometric_deviation(sysA::SystemManifest, sysB::SystemManifest, sysC::SystemManifest)::Float64
+    # Pairwise geometric divergence across the 3-manifold ring
+    d_AB = cosine_distance(sysA.semantics, sysB.semantics)
+    d_BC = cosine_distance(sysB.semantics, sysC.semantics)
+    d_CA = cosine_distance(sysC.semantics, sysA.semantics)
     
     return d_AB + d_BC + d_CA
 end
@@ -66,50 +52,46 @@ function run_diagnostics(sysA::SystemManifest, sysB::SystemManifest, sysC::Syste
     ]
     
     D_spec = compute_tri_spectral_deviation(sysA, sysB, sysC)
-    D_rho  = compute_tri_semantic_deviation(sysA, sysB, sysC)
+    D_geo  = compute_tri_geometric_deviation(sysA, sysB, sysC)
     
-    println("=== TRI-SYSTEM ENCLAVE DIAGNOSTICS (A6 SECURE) ===")
+    println("=== TRI-SYSTEM ENCLAVE DIAGNOSTICS (GEOMETRIC A6) ===")
     println("Firewall Matrix State (Σ_3):")
     display(Σ_3)
     
     println("\nMulti-Spectral Deviation (D_spec):   ", round(D_spec, digits=6))
-    println("Tri-Semantics Cross-Entropy (D_rho): ", round(D_rho, digits=6))
+    println("Tri-Geometric Deviation (D_geo):     ", round(D_geo, digits=6))
     
     # Structural Collapse Rule Checks
     if 0 in Σ_3
         println("🚨 STATUS: CRITICAL - A6 Firewall Breach Detected!")
     elseif D_spec < 1e-4
         println("🚨 STATUS: CRITICAL - Tri-System Spectral Collapse Impending!")
-    elseif D_rho < 1e-4
-        println("🚨 STATUS: CRITICAL - Tri-Semantics Collapse / Mutual Data Leakage Detected!")
+    elseif D_geo < 1e-4
+        println("🚨 STATUS: CRITICAL - Geometric Semantic Collapse Detected!")
     else
-        println("✅ STATUS: SECURE - Systems Isolated within A6 Boundaries.")
+        println("✅ STATUS: SECURE - Systems Isolated within Geometric A6 Boundaries.")
     end
 end
 
-# === Execution Mock Setup ===
+# === Execution Verification Setup ===
 dim = 5
 mat_A = (rand(dim, dim) + rand(dim, dim)') / 2
 mat_B = (rand(dim, dim) + rand(dim, dim)') / 2
 mat_C = (rand(dim, dim) + rand(dim, dim)') / 2
 
-# Case 1: Nominally isolated semantic structures
-sysA = create_system("Arch_A", dim, mat_A, rand(dim))
-sysB = create_system("Arch_B", dim, mat_B, rand(dim))
-sysC = create_system("Arch_C", dim, mat_C, rand(dim))
+# Case 1: Nominally isolated un-normalized semantic structures
+sysA = SystemManifest("Arch_A", dim, mat_A, rand(dim) .* 10.0)
+sysB = SystemManifest("Arch_B", dim, mat_B, rand(dim) .* 5.0)
+sysC = SystemManifest("Arch_C", dim, mat_C, rand(dim) .* 2.0)
 
 run_diagnostics(sysA, sysB, sysC)
 
-println("\n--- Simulating Dynamic Modification Invariance Proof ---")
-# Proving that modifying an element in raw data doesn't cross-contaminate other dimensions
-raw_data = rand(dim)
-sysC_base = create_system("Arch_C_Base", dim, mat_C, raw_data)
+println("\n--- Simulating Scale Invariance Proof ---")
+# Proving that multiplying System C's raw weights by 100x changes nothing in the metric
+sysC_scaled = SystemManifest("Arch_C_Scaled", dim, mat_C, sysC.semantics .* 100.0)
 
-modified_data = copy(raw_data)
-modified_data[1] += 5.0 # Alter entry 1 dramatically
-sysC_modified = create_system("Arch_C_Mod", dim, mat_C, modified_data)
-
-# Show that the derivative of entry 2 relative to a change in entry 1 remains zero
-println("Original Entry 2 Scaled Weight: ", sysC_base.semantics[2])
-println("Modified Entry 2 Scaled Weight: ", sysC_modified.semantics[2])
-println("Delta (Should be exactly 0.0):  ", sysC_base.semantics[2] - sysC_modified.semantics[2])
+D_geo_base   = compute_tri_geometric_deviation(sysA, sysB, sysC)
+D_geo_scaled = compute_tri_geometric_deviation(sysA, sysB, sysC_scaled)
+println("Base Geometric Metric:   ", D_geo_base)
+println("Scaled Geometric Metric: ", D_geo_scaled)
+println("Delta (Should be exactly 0.0): ", D_geo_base - D_geo_scaled)
