@@ -1,57 +1,53 @@
 (* ========================================================================== *)
-(* SYSTEM3HARNESS.V: GEOMETRIC COSINE TENSOR VERIFICATION ENGINE v2.0         *)
+(* SYSTEM3HARNESS.V: SCALE INVARIANCE INVARIANT PROOF ENGINE                  *)
 (* ========================================================================== *)
 
-Require Import List.
 Require Import Reals.
 Open Scope R_scope.
 
-Section GeometricTriSystemVerification.
+Section GeometricScaleInvariance.
 
-  (* Parameterize our agnostic system space *)
-  Variable SystemId : Type.
-  Definition SemanticVector := list R.
-
-  (* Core geometric operations mapped to Coq Real Axioms *)
+  (* Abstract vector representations *)
+  Variable SemanticVector : Type.
   Variable dot_product : SemanticVector -> SemanticVector -> R.
   Variable vector_norm : SemanticVector -> R.
+  Variable scalar_mult : R -> SemanticVector -> SemanticVector.
 
-  (* Definition of Cosine Distance: 1 - (A ∙ B) / (||A|| * ||B||) *)
+  (* Axiomatic linear algebra properties for inner-product scaling *)
+  Hypothesis dot_scalar_l : forall (k : R) (v1 v2 : SemanticVector),
+    dot_product (scalar_mult k v1) v2 = k * dot_product v1 v2.
+
+  Hypothesis norm_scalar_l : forall (k : R) (v : SemanticVector),
+    0 < k -> vector_norm (scalar_mult k v) = k * vector_norm v.
+
+  (* Core scale-invariant cosine distance calculation *)
   Definition cosine_distance (v1 v2 : SemanticVector) : R :=
     1 - (dot_product v1 v2) / (vector_norm v1 * vector_norm v2).
 
-  Record SystemManifest := {
-    sys_id   : SystemId;
-    semantics : SemanticVector;
-    norm_pos : vector_norm semantics > 0  (* Prevent division by zero *)
-  }.
-
-  Variable SysA : SystemManifest.
-  Variable SysB : SystemManifest.
-  Variable SysC : SystemManifest.
-
-  (* Total Cyclic Geometric Deviation Tensor: D_geo = d(A,B) + d(B,C) + d(C,A) *)
-  Definition compute_tri_geometric_deviation : R :=
-    cosine_distance (semantics SysA) (semantics SysB) +
-    cosine_distance (semantics SysB) (semantics SysC) +
-    cosine_distance (semantics SysC) (semantics SysA).
-
   (* ========================================================================== *)
-  (* CORE THEOREM: ZERO STRUCTURAL CROSS-CONTAMINATION (A6 PROOF)               *)
+  (* THEOREM: TRUE SCALE INVARIANCE (A6 BOUNDARY PROTECTION)                    *)
   (* ========================================================================== *)
   
-  (* Theorem proving that a mutation in System A cannot alter the distance      *)
-  (* boundary separating System B and System C.                                 *)
-  Theorem a6_coordinate_isolation : 
-    forall (mutated_semantics_A : SemanticVector) (h : vector_norm mutated_semantics_A > 0),
-    let SysA' := {| sys_id := sys_id SysA; semantics := mutated_semantics_A; norm_pos := h |} in
-    cosine_distance (semantics SysB) (semantics SysC) = 
-    cosine_distance (semantics SysB) (semantics SysC).
+  Theorem a6_scale_invariance : forall (v1 v2 : SemanticVector) (k : R),
+    0 < k -> 
+    vector_norm v1 > 0 -> 
+    vector_norm v2 > 0 ->
+    cosine_distance (scalar_mult k v1) v2 = cosine_distance v1 v2.
   Proof.
-    intros.
-    (* This proof reduces reflexively because the definition of cosine_distance *)
-    (* for B and C contains no structural bindings or paths to System A.        *)
-    reflexivity.
+    intros v1 v2 k Hk Hnv1 Hnv2.
+    unfold cosine_distance.
+    
+    (* Apply scalar expansion lemmas to the left side *)
+    rewrite dot_scalar_l.
+    rewrite norm_scalar_l; [|exact Hk].
+    
+    (* Rearrange denominator terms multiplication associativity *)
+    replace (k * vector_norm v1 * vector_norm v2) with (k * (vector_norm v1 * vector_norm v2)) by ring.
+    
+    (* Cancel out the scaling scalar multiplier k from numerator and denominator *)
+    rewrite Rquot_mult_cancel_l.
+    - reflexivity.
+    - lra. (* Prove k is non-zero from 0 < k constraint *)
   Qed.
 
-End GeometricTriSystemVerification.
+End GeometricScaleInvariance.
