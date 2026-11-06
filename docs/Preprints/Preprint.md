@@ -1,6 +1,6 @@
 # Agnostic Tri-Manifold Geometric Cosine Tensors: Preventing Simplex Collapse, Metric Disintegration, and Jargon-Injection Math-Washing in Sovereign Local AI Enclaves
 
-Authors: Hedling, Borealis Serenity (NDH-RESEARCH-PILOT); Chenoweth, Christopher; Lodri, Peter
+Authors: Hedling, Borealis Serenity (NDH-RESEARCH-PILOT); 
 Version: v2.0-Empirical (Preprint)
 Date: November 2026
 Lineage Attribution: This architecture builds upon the formal verification and structural principles established in the Version 4.0-alpha Non-Vanishing Symplectic Matrix Substrate (Zenodo DOI: 10.5281/zenodo.23997879) and the A6 Dual-Algebra Comparison Harness.
