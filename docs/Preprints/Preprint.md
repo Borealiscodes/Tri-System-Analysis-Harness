@@ -1,7 +1,6 @@
-================================================================================
 AGNOSTIC TRI-MANIFOLD GEOMETRIC COSINE TENSORS: PREVENTING SIMPLEX COLLAPSE, 
 METRIC DISINTEGRATION, AND JARGON-INJECTION MATH-WASHING IN LOCAL AI ENCLAVES
-================================================================================
+
 Author: Hedling, Borealis Serenity (Researcher | NDH-RESEARCH-PILOT)
 Version: v2.0-Empirical (Preprint)
 Date: November 2026
@@ -13,7 +12,7 @@ Interest Foundation (8b-is). The author acknowledges core systems architects
 Christopher Chenoweth and Peter Lodri for the pioneering engineering patterns 
 archived in Zenodo Record DOI: 10.5281/zenodo.23997879. They did not author or 
 participate in the construction of this specific validation harness or text.
-================================================================================
+
 
 
 Abstract
