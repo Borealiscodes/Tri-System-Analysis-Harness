@@ -4,7 +4,7 @@ Draft Preprint: Structural Isolation via Geometric Tensor Rings
 Metadata & Citing Lineage
 
 • Title: Agnostic Tri-Manifold Geometric Cosine Tensors: Preventing Simplex Collapse, Metric Disintegration, and Jargon-Injection Math-Washing in Sovereign Local AI Enclaves
-• Authors: Hedling, Borealis Serenity (NDH-RESEARCH-PILOT); Chenoweth, Christopher; Lodri, Peter
+• Author: Hedling, Borealis Serenity (NDH-RESEARCH-PILOT)
 • Version: v2.0-Theoretical (Preprint)
 • Date: November 2026
 • Citing Lineage: Descends from Zenodo Record DOI: 10.5281/zenodo.23997879 (v4.0-alpha Symplectic Substrate) and Borealiscodes/Tri-System-Analysis-Harness.
