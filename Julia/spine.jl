@@ -1,6 +1,6 @@
 using LinearAlgebra
 
-# 1. Un-Normalized Isolated System Representation
+# 1. Agnostic System Manifest
 struct SystemManifest
     id::String
     ontology_dimension::Int
@@ -12,7 +12,7 @@ end
 function evaluate_a6_firewall(sys::SystemManifest)::Vector{Int}
     signature = ones(Int, 13)
     if abs(det(sys.adjacency)) < 1e-5
-        signature = 0 # Vulnerability specifically trips fix #7
+        signature[7] = 0 # Vulnerability specifically trips fix #7
     end
     return signature
 end
@@ -26,19 +26,28 @@ function compute_tri_spectral_deviation(sysA::SystemManifest, sysB::SystemManife
     return norm(specA - specB) + norm(specB - specC) + norm(specC - specA)
 end
 
-# 4. Geometric Cosine Tensor Divergence Engine
-function cosine_distance(v1::Vector{Float64}, v2::Vector{Float64})::Float64
-    # Computes 1 - cos(θ), mapping orthogonal vectors to 1.0 and identical vectors to 0.0
-    denom = norm(v1) * norm(v2)
-    if denom < 1e-12 return 1.0 end # Safeguard for zero vectors
-    return 1.0 - (dot(v1, v2) / denom)
+# 4. Stabilized Scale-Invariant Cosine Distance Engine
+function safe_cosine_distance(v1::Vector{Float64}, v2::Vector{Float64})::Float64
+    norm1 = norm(v1)
+    norm2 = norm(v2)
+    
+    # Structural Safeguard: If either vector collapses to zero magnitude,
+    # return a maximal orthogonal penalty (1.0) rather than allowing NaN propagation.
+    if norm1 < 1e-12 || norm2 < 1e-12
+        return 1.0
+    end
+    
+    # Compute the clamped inner product to prevent floating-point bleed past [-1.0, 1.0]
+    cos_theta = dot(v1, v2) / (norm1 * norm2)
+    cos_theta = clamp(cos_theta, -1.0, 1.0)
+    
+    return 1.0 - cos_theta
 end
 
 function compute_tri_geometric_deviation(sysA::SystemManifest, sysB::SystemManifest, sysC::SystemManifest)::Float64
-    # Pairwise geometric divergence across the 3-manifold ring
-    d_AB = cosine_distance(sysA.semantics, sysB.semantics)
-    d_BC = cosine_distance(sysB.semantics, sysC.semantics)
-    d_CA = cosine_distance(sysC.semantics, sysA.semantics)
+    d_AB = safe_cosine_distance(sysA.semantics, sysB.semantics)
+    d_BC = safe_cosine_distance(sysB.semantics, sysC.semantics)
+    d_CA = safe_cosine_distance(sysC.semantics, sysA.semantics)
     
     return d_AB + d_BC + d_CA
 end
@@ -54,14 +63,13 @@ function run_diagnostics(sysA::SystemManifest, sysB::SystemManifest, sysC::Syste
     D_spec = compute_tri_spectral_deviation(sysA, sysB, sysC)
     D_geo  = compute_tri_geometric_deviation(sysA, sysB, sysC)
     
-    println("=== TRI-SYSTEM ENCLAVE DIAGNOSTICS (GEOMETRIC A6) ===")
+    println("=== TRI-SYSTEM ENCLAVE DIAGNOSTICS ===")
     println("Firewall Matrix State (Σ_3):")
     display(Σ_3)
     
     println("\nMulti-Spectral Deviation (D_spec):   ", round(D_spec, digits=6))
     println("Tri-Geometric Deviation (D_geo):     ", round(D_geo, digits=6))
     
-    # Structural Collapse Rule Checks
     if 0 in Σ_3
         println("🚨 STATUS: CRITICAL - A6 Firewall Breach Detected!")
     elseif D_spec < 1e-4
@@ -73,25 +81,20 @@ function run_diagnostics(sysA::SystemManifest, sysB::SystemManifest, sysC::Syste
     end
 end
 
-# === Execution Verification Setup ===
+# === Runtime Testing & Verification Setup ===
 dim = 5
 mat_A = (rand(dim, dim) + rand(dim, dim)') / 2
 mat_B = (rand(dim, dim) + rand(dim, dim)') / 2
 mat_C = (rand(dim, dim) + rand(dim, dim)') / 2
 
-# Case 1: Nominally isolated un-normalized semantic structures
+# Baseline Isolated Architectures
 sysA = SystemManifest("Arch_A", dim, mat_A, rand(dim) .* 10.0)
 sysB = SystemManifest("Arch_B", dim, mat_B, rand(dim) .* 5.0)
-sysC = SystemManifest("Arch_C", dim, mat_C, rand(dim) .* 2.0)
 
-run_diagnostics(sysA, sysB, sysC)
+println("--- Case 1: Active Absolute Vector Collapse Simulation ---")
+# System C completely crashes out or is uninitialized (All zero weights)
+sysC_collapsed = SystemManifest("Arch_C_Zero", dim, mat_C, zeros(dim))
 
-println("\n--- Simulating Scale Invariance Proof ---")
-# Proving that multiplying System C's raw weights by 100x changes nothing in the metric
-sysC_scaled = SystemManifest("Arch_C_Scaled", dim, mat_C, sysC.semantics .* 100.0)
+# Run check to verify that our safe execution boundary intercepts NaN errors
+run_diagnostics(sysA, sysB, sysC_collapsed)
 
-D_geo_base   = compute_tri_geometric_deviation(sysA, sysB, sysC)
-D_geo_scaled = compute_tri_geometric_deviation(sysA, sysB, sysC_scaled)
-println("Base Geometric Metric:   ", D_geo_base)
-println("Scaled Geometric Metric: ", D_geo_scaled)
-println("Delta (Should be exactly 0.0): ", D_geo_base - D_geo_scaled)
