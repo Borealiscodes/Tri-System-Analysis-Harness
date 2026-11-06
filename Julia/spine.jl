@@ -5,18 +5,23 @@ struct SystemManifest
     id::String
     ontology_dimension::Int
     adjacency::Matrix{Float64}
-    semantics::Vector{Float64}
+    semantics::Vector{Float64} # Must sum to 1.0 to form a valid semantic distribution
+end
+
+# Helper to safely instantiate normalized semantic vectors
+function create_system(id::String, dim::Int, adj::Matrix{Float64}, raw_semantics::Vector{Float64})
+    # Softmax normalization to turn raw semantic weights into a valid probability distribution
+    eps = 1e-12
+    exps = exp.(raw_semantics .- maximum(raw_semantics))
+    normalized_semantics = (exps .+ eps) ./ (sum(exps) + dim * eps)
+    return SystemManifest(id, dim, adj, normalized_semantics)
 end
 
 # 2. A6 Firewall Evaluator (Simulated 13 Constructive Fixes)
 function evaluate_a6_firewall(sys::SystemManifest)::Vector{Int}
-    # In practice, this evaluates structural rules. 
-    # Returns a 13-bit signature vector. 1 = Pass, 0 = Breach.
     signature = ones(Int, 13)
-    
-    # Example vulnerability trigger: if matrix is singular, trip fix #7
     if abs(det(sys.adjacency)) < 1e-5
-        signature[7] = 0
+        signature[7] = 0 # Vulnerability trips fix #7
     end
     return signature
 end
@@ -27,17 +32,26 @@ function compute_tri_spectral_deviation(sysA::SystemManifest, sysB::SystemManife
     specB = sort(real(eigen(sysB.adjacency).values))
     specC = sort(real(eigen(sysC.adjacency).values))
     
-    # Compute pairwise Frobenius distance (Euclidean distance on sorted spectra)
-    d_AB = norm(specA - specB)
-    d_BC = norm(specB - specC)
-    d_CA = norm(specC - specA)
+    return norm(specA - specB) + norm(specB - specC) + norm(specC - specA)
+end
+
+# 4. Tri-Semantics Cross-Entropy & Information Divergence Engine
+function kl_divergence(p::Vector{Float64}, q::Vector{Float64})::Float64
+    # Computes D_KL(P || Q) securely preventing log(0)
+    return sum(p[i] * log(p[i] / q[i]) for i in eachindex(p))
+end
+
+function compute_tri_semantic_deviation(sysA::SystemManifest, sysB::SystemManifest, sysC::SystemManifest)::Float64
+    # Symmetric 3-way Kullback-Leibler Divergence Loop representing D_ρ^(3)
+    d_AB = kl_divergence(sysA.semantics, sysB.semantics) + kl_divergence(sysB.semantics, sysA.semantics)
+    d_BC = kl_divergence(sysB.semantics, sysC.semantics) + kl_divergence(sysC.semantics, sysB.semantics)
+    d_CA = kl_divergence(sysC.semantics, sysA.semantics) + kl_divergence(sysA.semantics, sysC.semantics)
     
     return d_AB + d_BC + d_CA
 end
 
-# 4. Collapse Diagnostics Suite
+# 5. Core Diagnostics Controller
 function run_diagnostics(sysA::SystemManifest, sysB::SystemManifest, sysC::SystemManifest)
-    # Assemble Firewall Matrix Tensor
     Σ_3 = [
         evaluate_a6_firewall(sysA)';
         evaluate_a6_firewall(sysB)';
@@ -45,30 +59,41 @@ function run_diagnostics(sysA::SystemManifest, sysB::SystemManifest, sysC::Syste
     ]
     
     D_spec = compute_tri_spectral_deviation(sysA, sysB, sysC)
+    D_rho  = compute_tri_semantic_deviation(sysA, sysB, sysC)
     
     println("=== TRI-SYSTEM ENCLAVE DIAGNOSTICS ===")
-    println("Firewall Matrix State:")
+    println("Firewall Matrix State (Σ_3):")
     display(Σ_3)
-    println("\nMulti-Spectral Deviation (D_spec): ", round(D_spec, digits=6))
     
-    # Check for failure modes
+    println("\nMulti-Spectral Deviation (D_spec):   ", round(D_spec, digits=6))
+    println("Tri-Semantics Cross-Entropy (D_rho): ", round(D_rho, digits=6))
+    
+    # Structural Collapse Rule Checks
     if 0 in Σ_3
         println("🚨 STATUS: CRITICAL - A6 Firewall Breach Detected!")
     elseif D_spec < 1e-4
         println("🚨 STATUS: CRITICAL - Tri-System Spectral Collapse Impending!")
+    elseif D_rho < 1e-4
+        println("🚨 STATUS: CRITICAL - Tri-Semantics Collapse / Mutual Data Leakage Detected!")
     else
         println("✅ STATUS: SECURE - Systems Isolated within A6 Boundaries.")
     end
 end
 
 # === Execution Mock Setup ===
-# Generate three distinct 5-dimensional decoupled system graphs
-mat_A = rand(5, 5); mat_A = (mat_A + mat_A') / 2 # Symmetric graph
-mat_B = rand(5, 5); mat_B = (mat_B + mat_B') / 2
-mat_C = rand(5, 5); mat_C = (mat_C + mat_C') / 2 # Swap to zeros(5,5) to test breach
+dim = 5
+mat_A = (rand(dim, dim) + rand(dim, dim)') / 2
+mat_B = (rand(dim, dim) + rand(dim, dim)') / 2
+mat_C = (rand(dim, dim) + rand(dim, dim)') / 2
 
-sysA = SystemManifest("Arch_A", 5, mat_A, rand(5))
-sysB = SystemManifest("Arch_B", 5, mat_B, rand(5))
-sysC = SystemManifest("Arch_C", 5, mat_C, rand(5))
+# Case 1: Nominally isolated semantic structures
+sysA = create_system("Arch_A", dim, mat_A, rand(dim))
+sysB = create_system("Arch_B", dim, mat_B, rand(dim))
+sysC = create_system("Arch_C", dim, mat_C, rand(dim))
 
 run_diagnostics(sysA, sysB, sysC)
+
+println("\n--- Simulating Root-Semantics Collapse ---")
+# Case 2: Forcing identical structures to trigger collapse detection
+sysC_collapsed = create_system("Arch_C_Leak", dim, mat_C, copy(sysA.semantics))
+run_diagnostics(sysA, sysB, sysC_collapsed)
