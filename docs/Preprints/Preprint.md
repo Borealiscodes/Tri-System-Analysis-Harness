@@ -1,9 +1,20 @@
-# Agnostic Tri-Manifold Geometric Cosine Tensors: Preventing Simplex Collapse, Metric Disintegration, and Jargon-Injection Math-Washing in Sovereign Local AI Enclaves
-
-Authors: Hedling, Borealis Serenity (NDH-RESEARCH-PILOT); 
+================================================================================
+AGNOSTIC TRI-MANIFOLD GEOMETRIC COSINE TENSORS: PREVENTING SIMPLEX COLLAPSE, 
+METRIC DISINTEGRATION, AND JARGON-INJECTION MATH-WASHING IN LOCAL AI ENCLAVES
+================================================================================
+Author: Hedling, Borealis Serenity (Researcher | NDH-RESEARCH-PILOT)
 Version: v2.0-Empirical (Preprint)
 Date: November 2026
-Lineage Attribution: This architecture builds upon the formal verification and structural principles established in the Version 4.0-alpha Non-Vanishing Symplectic Matrix Substrate (Zenodo DOI: 10.5281/zenodo.23997879) and the A6 Dual-Algebra Comparison Harness.
+
+Lineage & Acknowledgments: 
+This framework descends conceptually from the open-source ternary infrastructure 
+and cognitive wave memory models engineered by the 8b Research Project Public 
+Interest Foundation (8b-is). The author acknowledges core systems architects 
+Christopher Chenoweth and Peter Lodri for the pioneering engineering patterns 
+archived in Zenodo Record DOI: 10.5281/zenodo.23997879. They did not author or 
+participate in the construction of this specific validation harness or text.
+================================================================================
+
 
 Abstract
 
