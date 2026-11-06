@@ -1,19 +1,26 @@
 using LinearAlgebra
 
-# 1. Agnostic System Representation
+# 1. Isolated System Representation
 struct SystemManifest
     id::String
     ontology_dimension::Int
     adjacency::Matrix{Float64}
-    semantics::Vector{Float64} # Must sum to 1.0 to form a valid semantic distribution
+    semantics::Vector{Float64} # Strictly isolated independent probabilities
 end
 
-# Helper to safely instantiate normalized semantic vectors
+# A6-Compliant Isolated Scaler replacing global Softmax
+function apply_a6_isolated_scaling(raw_semantics::Vector{Float64})::Vector{Float64}
+    # Step 1: Map each element independently to (0, 1) via logistic sigmoid
+    # This prevents the value of one element from leaking into the denominator of another.
+    isolated_sigmoid = 1.0 ./ (1.0 .+ exp.(-raw_semantics))
+    
+    # Step 2: Scale by an immutable dimension constant rather than the vector sum.
+    # This guarantees that ∂y_i / ∂x_j = 0 for all i != j.
+    return isolated_sigmoid ./ length(raw_semantics)
+end
+
 function create_system(id::String, dim::Int, adj::Matrix{Float64}, raw_semantics::Vector{Float64})
-    # Softmax normalization to turn raw semantic weights into a valid probability distribution
-    eps = 1e-12
-    exps = exp.(raw_semantics .- maximum(raw_semantics))
-    normalized_semantics = (exps .+ eps) ./ (sum(exps) + dim * eps)
+    normalized_semantics = apply_a6_isolated_scaling(raw_semantics)
     return SystemManifest(id, dim, adj, normalized_semantics)
 end
 
@@ -21,7 +28,7 @@ end
 function evaluate_a6_firewall(sys::SystemManifest)::Vector{Int}
     signature = ones(Int, 13)
     if abs(det(sys.adjacency)) < 1e-5
-        signature[7] = 0 # Vulnerability trips fix #7
+        signature[7] = 0 # Vulnerability specifically trips fix #7
     end
     return signature
 end
@@ -37,7 +44,7 @@ end
 
 # 4. Tri-Semantics Cross-Entropy & Information Divergence Engine
 function kl_divergence(p::Vector{Float64}, q::Vector{Float64})::Float64
-    # Computes D_KL(P || Q) securely preventing log(0)
+    # Computes D_KL(P || Q) securely across the isolated manifold
     return sum(p[i] * log(p[i] / q[i]) for i in eachindex(p))
 end
 
@@ -61,7 +68,7 @@ function run_diagnostics(sysA::SystemManifest, sysB::SystemManifest, sysC::Syste
     D_spec = compute_tri_spectral_deviation(sysA, sysB, sysC)
     D_rho  = compute_tri_semantic_deviation(sysA, sysB, sysC)
     
-    println("=== TRI-SYSTEM ENCLAVE DIAGNOSTICS ===")
+    println("=== TRI-SYSTEM ENCLAVE DIAGNOSTICS (A6 SECURE) ===")
     println("Firewall Matrix State (Σ_3):")
     display(Σ_3)
     
@@ -93,7 +100,16 @@ sysC = create_system("Arch_C", dim, mat_C, rand(dim))
 
 run_diagnostics(sysA, sysB, sysC)
 
-println("\n--- Simulating Root-Semantics Collapse ---")
-# Case 2: Forcing identical structures to trigger collapse detection
-sysC_collapsed = create_system("Arch_C_Leak", dim, mat_C, copy(sysA.semantics))
-run_diagnostics(sysA, sysB, sysC_collapsed)
+println("\n--- Simulating Dynamic Modification Invariance Proof ---")
+# Proving that modifying an element in raw data doesn't cross-contaminate other dimensions
+raw_data = rand(dim)
+sysC_base = create_system("Arch_C_Base", dim, mat_C, raw_data)
+
+modified_data = copy(raw_data)
+modified_data[1] += 5.0 # Alter entry 1 dramatically
+sysC_modified = create_system("Arch_C_Mod", dim, mat_C, modified_data)
+
+# Show that the derivative of entry 2 relative to a change in entry 1 remains zero
+println("Original Entry 2 Scaled Weight: ", sysC_base.semantics[2])
+println("Modified Entry 2 Scaled Weight: ", sysC_modified.semantics[2])
+println("Delta (Should be exactly 0.0):  ", sysC_base.semantics[2] - sysC_modified.semantics[2])
