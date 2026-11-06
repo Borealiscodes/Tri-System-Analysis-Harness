@@ -1,31 +1,35 @@
-\section{Agnostic 3-Manifold Definitions}
-Define three independent system manifolds:
-\[
-\mathcal{M}_A = (\mathcal{O}_A, \mathcal{R}_A, \rho_A), \quad
-\mathcal{M}_B = (\mathcal{O}_B, \mathcal{R}_B, \rho_B), \quad
-\mathcal{M}_C = (\mathcal{O}_C, \mathcal{R}_C, \rho_C)
-\]
-Each manifold represents an isolated architectural slice evaluated against the A6 dual-algebra boundaries without dynamic coupling.
+\documentclass[11pt]{article}
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage{matrix}
+\usepackage{hyperref}
 
-\section{Firewall Signature Tensor}
-The A6 evaluation operator $E_i(\mathcal{M})$ scales natively. We define the composite 3-System Firewall Matrix:
-\[
-\mathbf{\Sigma}_{3} = \begin{bmatrix}
-\Sigma(\mathcal{M}_A) \\
-\Sigma(\mathcal{M}_B) \\
-\Sigma(\mathcal{M}_C)
-\end{bmatrix} \in \mathbb{R}^{3 \times 13}
-\]
+\title{Comparison Harness for Root-Semantics Ontologies Using the A6 Dual-Algebra Firewall \\ \large Version 2.0: Geometric Tensor Specification}
+\author{Borealis S. Hedling}
+\date{November 2026}
+
+\begin{document}
+
+\maketitle
+
+\section*{Purpose}
+Defines a formal, system-agnostic comparison structure for evaluating three independent ontology manifolds ($\mathcal{M}_A, \mathcal{M}_B, \mathcal{M}_C$) within a data-isolated hardware enclave using scale-invariant geometric tensor fields on un-normalized Riemannian manifolds.
+
+\section{Agnostic Tri-Manifold Definitions}
+Establishes three independent system manifolds $\mathcal{M}_k = (\mathcal{O}_k, \mathcal{R}_k, \mathbf{\rho}_k)$ for $k \in \{A, B, C\}$, where each root-semantic mapping $\mathbf{\rho}_k: \mathcal{O}_k \to \mathbb{R}^N$ acts as an un-normalized, coordinate-independent tensor vector in Euclidean space.
+
+\section{Concurrent Firewall Signature Matrix}
+Constructs a $3 \times 13$ binary firewall matrix $\mathbf{\Sigma}_{3}$ evaluating 13 A6 constructive fixes across each system ($\mathcal{M}_A, \mathcal{M}_B, \mathcal{M}_C$). Any zero entry in $\mathbf{\Sigma}_{3}$ signifies a structural firewall breach.
 
 \section{Multi-Spectral Deviation}
-Instead of a simple pair distance, compute the pairwise Frobenius distance across all three adjacency matrices ($A_A, A_B, A_C$) to capture distributed resonance variances:
-\[
-D_{\mathrm{spec}}^{(3)} = \left\| \mathrm{Spec}(A_A) - \mathrm{Spec}(A_B) \right\| + \left\| \mathrm{Spec}(A_B) - \mathrm{Spec}(A_C) \right\| + \left\| \mathrm{Spec}(A_C) - \mathrm{Spec}(A_A) \right\|
-\]
+Measures distributed resonance variance across the tri-system ring using the pairwise Frobenius distance of the sorted eigenvalue spectra from the respective resonance adjacency matrices ($A_A, A_B, A_C$).
 
-\section{Tri-Semantics Collapse Criterion}
-Root-semantics deviation scales to pairwise semantic cross-entropy or distance:
-\[
-D_{\rho}^{(3)} = \sum_{i,j,k} \Big( \|\rho_A(O_{A,i}) - \rho_B(O_{B,j})\| + \|\rho_B(O_{B,j}) - \rho_C(O_{C,k})\| + \|\rho_C(O_{C,k}) - \rho_A(O_{A,i})\| \Big)
-\]
-Tri-semantics collapse occurs when $D_{\rho}^{(3)} \to 0$, indicating structural homogenization across all three isolated architectures.
+\section{Geometric Cosine Tensor Divergence}
+Evaluates semantic distance via the angular deviation of un-normalized root-semantic states using the pairwise Geometric Cosine Distance $d_{\mathrm{geo}}(\mathbf{\rho}_X, \mathbf{\rho}_Y)$, aggregated into a cyclic Tri-Geometric Semantic Deviation Tensor $D_{\mathbf{\rho}}^{(3)}$. Because partial derivatives between unlinked systems vanish (e.g., $\frac{\partial}{\partial \mathbf{\rho}_{A,i}} d_{\mathrm{geo}}(\mathbf{\rho}_B, \mathbf{\rho}_C) \equiv 0$), mutations in one isolated system cannot alter neighbor distance curves.
+
+\section{Enclave Failure Mode Diagnostics}
+Trips architectural collapse conditions deterministically under specific limits: Firewall Breach State ($\exists k, i$ with $\mathbf{\Sigma}_{3, (k,i)} = 0$), Multi-Spectral Graph Collapse ($D_{\mathrm{spec}}^{(3)} \to 0$), and Geometric Semantic Collapse ($D_{\mathbf{\rho}}^{(3)} \to 0$).
+
+\section{Conclusion}
+Harness v2.0 establishes an immutable, coordinate-independent architecture providing guaranteed mathematical isolation and zero-shared information leakage across system horizons via angular geometric distances.
+
+\end{document}
