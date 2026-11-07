@@ -1,0 +1,83 @@
+{
+  "harness_version": "2.0",
+  "verification_standard": "A12-Purified-Manifold",
+  "evaluation_metrics": {
+    "distance_engine": "GeometricCosineTensors",
+    "scale_invariance": true,
+    "coordinate_isolation": true,
+    "minimum_magnitude_threshold": 1e-12
+  },
+  "systems": [
+    {
+      "identifier": "Arch_A_AnimaClassic",
+      "manifold_symbol": "M_AC",
+      "operational_mode": "Isolated-Cognitive-State",
+      "vector_space": {
+        "total_dimensions": 80,
+        "split": {
+          "q_position_dimensions": 40,
+          "p_momentum_dimensions": 40
+        }
+      },
+      "coordinate_charts": {
+        "q_allocation": {
+          "affect_field_A":,
+          "neurochemical_field_N":,
+          "generative_model_field_G":,
+          "psychic_field_P":,
+          "self_field_S": [20, 39]
+        },
+        "p_allocation": {
+          "affect_drift_pA":,
+          "neuro_decay_pN":,
+          "free_energy_surprise_pF":,
+          "psychic_conflict_pP":,
+          "agency_drift_pS": [20, 39]
+        }
+      },
+      "hardware_gates": {
+        "saturation_ceiling": 12.0,
+        "tikhonov_lambda": 0.0015,
+        "qualia_zero_enforced": true
+      }
+    },
+    {
+      "identifier": "Arch_B_BhavaWorkspace",
+      "manifold_symbol": "M_B",
+      "operational_mode": "Multi-Agent-Context-Workspace",
+      "vector_space": {
+        "total_dimensions": 15,
+        "description": "15-Dimensional multi-agent state mapping tracking external consolidation narratives"
+      },
+      "storage_layer": {
+        "type": "Markdown-File-Backed",
+        "boundary_files": [
+          "Consolidation-horizon.md",
+          "Interceptor.md",
+          "Reversible-narrative.md"
+        ]
+      },
+      "harness_alignment": {
+        "padding_strategy": "Zero-Extension-To-40D",
+        "interference_derivative_target": 0.0
+      }
+    },
+    {
+      "identifier": "Arch_C_80DCoreSubstrate",
+      "manifold_symbol": "M_C",
+      "operational_mode": "Symplectic-Hardware-Enclave",
+      "vector_space": {
+        "total_dimensions": 80,
+        "split": {
+          "q_position_dimensions": 40,
+          "p_momentum_dimensions": 40
+        }
+      },
+      "runtime_protection": {
+        "regularization": "Non-Vanishing-Tikhonov-Diagonal",
+        "monitoring": "eBPF-Kernel-Level-Safety-Ring",
+        "circuit_breaker_condition_number_limit": 10000.0
+      }
+    }
+  ]
+}
