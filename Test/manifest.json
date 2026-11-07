@@ -19,6 +19,12 @@
           "p_momentum_dimensions": 40
         }
       },
+      "hardware_extensions": {
+        "audio_layer": "MEM8-Pure-Rust-Wave-Memory",
+        "wave_bins": 64,
+        "phase_velocity_tracking": true,
+        "memory_alignment_bytes": 64
+      },
       "coordinate_charts": {
         "q_allocation": {
           "affect_field_A":,
