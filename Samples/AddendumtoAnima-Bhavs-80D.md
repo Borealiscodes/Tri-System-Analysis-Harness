@@ -4,6 +4,8 @@ By translating this 6-axis clean geometry directly into your SymplecticState spl
 Here is how the 6-field manifold maps into the active symplectic registers:
 text
 Symplectic State Array Layout [40D Vector Space]
+
+<pre>
 ┌─────────────────── Position Coordinates (q) ───────────────────┐
 │ [0..4]      [5..9]      [10..14]     [15..19]     [20..39]     │
 │ Affect (𝓔)  Neuro (𝓝)   Gen (𝓖)      Psychic (𝓟)  Self (𝓢)     │
@@ -12,6 +14,8 @@ Symplectic State Array Layout [40D Vector Space]
 │ [0..4]      [5..9]      [10..14]     [15..19]     [20..39]     │
 │ 𝓔-Velocity  𝓝-Velocity  𝓖-Velocity   𝓟-Velocity   𝓢-Velocity   │
 └────────────────────────────────────────────────────────────────┘
+
+</pre>
 *Note: Free Energy (𝓕) handles the inner-product contraction across all fields rather than taking up a static dimension.
 Use code with caution.
 
